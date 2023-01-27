@@ -1248,3 +1248,12 @@ void RPiCamApp::configureDenoise(const std::string &denoise_mode)
 
 	controls_.set(NoiseReductionMode, denoise);
 }
+
+std::vector<libcamera::Span<uint8_t>> RPiCamApp::Mmap(FrameBuffer *buffer) const
+{
+	auto item = mapped_buffers_.find(buffer);
+	if (item == mapped_buffers_.end())
+		return {};
+	return item->second;
+}
+

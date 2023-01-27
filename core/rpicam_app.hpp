@@ -155,6 +155,8 @@ public:
 	Stream *LoresStream(StreamInfo *info = nullptr) const;
 	Stream *GetMainStream() const;
 
+	std::vector<libcamera::Span<uint8_t>> Mmap(FrameBuffer *buffer) const;
+
 	const CameraManager *GetCameraManager();
 	std::vector<std::shared_ptr<libcamera::Camera>> GetCameras()
 	{

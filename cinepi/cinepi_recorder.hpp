@@ -5,7 +5,7 @@
  * libcamera_encoder.cpp - libcamera video encoding class.
  */
 
-#include "core/libcamera_app.hpp"
+#include "core/rpicam_app.hpp"
 #include "core/stream_info.hpp"
 #include "raw_options.hpp"
 
@@ -15,13 +15,13 @@
 typedef std::function<void(void *, size_t, int64_t, bool)> EncodeOutputReadyCallback;
 typedef std::function<void(libcamera::ControlList &)> MetadataReadyCallback;
 
-class CinePIRecorder : public LibcameraApp
+class CinePIRecorder : public RPiCamApp
 {
 public:
 	using Stream = libcamera::Stream;
 	using FrameBuffer = libcamera::FrameBuffer;
 
-	CinePIRecorder() : LibcameraApp(std::make_unique<RawOptions>()) {}
+	CinePIRecorder() : RPiCamApp(std::make_unique<RawOptions>()) {}
 
 	void StartEncoder()
 	{
