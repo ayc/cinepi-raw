@@ -1,8 +1,16 @@
-# rpicam-apps
-This is a small suite of libcamera-based applications to drive the cameras on a Raspberry Pi platform.
+# CinePi Raw
 
->[!WARNING]
->These applications and libraries have been renamed from `libcamera-*` to `rpicam-*`. Symbolic links to allow users to keep using the old application names have now been removed.
+*Fork of rpicam-apps (formerly libcamera-apps) that builds upon the rpicam-raw app, offering CinemaDNG recording capabilities and integration with Redis offering an abstract "API" like layer for custom integrations.*
+
+Requirements
+-----
+Please install the below requirements before continuing with the rest of the build process:
+
+[Redis](https://github.com/redis/redis)
+
+[Hiredis](https://github.com/redis/hiredis)
+
+[Redis++](https://github.com/redis/redis-plus-plus)
 
 Build
 -----
@@ -12,8 +20,3 @@ License
 -------
 
 The source code is made available under the simplified [BSD 2-Clause license](https://spdx.org/licenses/BSD-2-Clause.html).
-
-Status
-------
-
-[![ToT libcamera build/run test](https://github.com/raspberrypi/rpicam-apps/actions/workflows/rpicam-test.yml/badge.svg)](https://github.com/raspberrypi/rpicam-apps/actions/workflows/rpicam-test.yml)
