@@ -15,7 +15,9 @@ Please install the below requirements before continuing with the rest of the bui
 Requirements
 -----
 Please install the below requirements before contiuing with the rest of the build process:
+
 [Hiredis](https://github.com/redis/hiredis)
+
 [Redis++](https://github.com/sewenew/redis-plus-plus)
 
 Build
