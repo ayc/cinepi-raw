@@ -12,6 +12,12 @@ Please install the below requirements before continuing with the rest of the bui
 
 [Redis++](https://github.com/redis/redis-plus-plus)
 
+Requirements
+-----
+Please install the below requirements before contiuing with the rest of the build process:
+[Hiredis](https://github.com/redis/hiredis)
+[Redis++](https://github.com/sewenew/redis-plus-plus)
+
 Build
 -----
 For usage and build instructions, see the official Raspberry Pi documentation pages [here.](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera-and-rpicam-apps)
