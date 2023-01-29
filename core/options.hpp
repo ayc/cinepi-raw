@@ -192,6 +192,8 @@ struct OptsInternal
 	std::string post_process_libs;
 	unsigned int width;
 	unsigned int height;
+	int compression;
+	bool rawfull;
 	bool nopreview;
 	std::string preview;
 	bool fullscreen;
