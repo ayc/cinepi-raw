@@ -207,6 +207,7 @@ struct OptsInternal
 	int exposure_index;
 	float ev;
 	std::string awb;
+	bool awbEn;
 	int awb_index;
 	std::string awbgains;
 	float awb_gain_r;
