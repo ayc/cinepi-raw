@@ -230,7 +230,7 @@ void CinePIController::mainThread(){
                 roi_x = (roi_x - roi_width) / 2;
                 roi_y = (roi_y - roi_height) / 2;
 
-                libcamera::Rectangle sensor_area = *app_->CameraModel()->properties().get(properties::ScalerCropMaximum);
+                libcamera::Rectangle sensor_area = *app_->GetCamera()->properties().get(properties::ScalerCropMaximum);
                 int x = roi_x * sensor_area.width;
                 int y = roi_y * sensor_area.height;
                 int w = roi_width * sensor_area.width;
