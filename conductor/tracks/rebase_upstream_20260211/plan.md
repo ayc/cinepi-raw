@@ -5,10 +5,10 @@
     - [x] Add `upstream` remote pointing to `https://github.com/raspberrypi/rpicam-apps.git` (if not exists).
     - [x] Fetch latest changes from `upstream`.
     - [x] Create a backup branch (e.g., `main-backup-pre-rebase`) to ensure safety.
-- [~] Task: Execute Rebase
-    - [ ] Checkout `main` branch.
-    - [ ] Initiate `git rebase upstream/main`.
-    - [ ] Identify files with conflicts.
+- [x] Task: Execute Rebase 7b01d91
+    - [x] Checkout `main` branch.
+    - [x] Initiate `git rebase upstream/main`.
+    - [x] Identify files with conflicts.
 
 ## Phase 2: Conflict Resolution
 - [ ] Task: Resolve Build Configuration Conflicts
