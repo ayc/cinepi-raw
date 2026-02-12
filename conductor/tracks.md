@@ -20,5 +20,4 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: GPU LUT Post-Processing Stage**
-*Link: [./tracks/gpu_lut_stage_20260211/](./tracks/gpu_lut_stage_20260211/)*
+
