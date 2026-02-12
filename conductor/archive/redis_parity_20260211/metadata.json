@@ -1,0 +1,8 @@
+{
+  "track_id": "redis_parity_20260211",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-02-11T13:00:00Z",
+  "updated_at": "2026-02-11T13:00:00Z",
+  "description": "Complete the refactored control layer by implementing all missing Redis commands and restoring full status broadcasting with JSON aggregation."
+}
