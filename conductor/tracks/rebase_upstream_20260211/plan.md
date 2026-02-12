@@ -1,10 +1,10 @@
 # Implementation Plan - Rebase Upstream
 
 ## Phase 1: Preparation & Rebase
-- [ ] Task: Configure Remote and Fetch
-    - [ ] Add `upstream` remote pointing to `https://github.com/raspberrypi/rpicam-apps.git` (if not exists).
-    - [ ] Fetch latest changes from `upstream`.
-    - [ ] Create a backup branch (e.g., `main-backup-pre-rebase`) to ensure safety.
+- [x] Task: Configure Remote and Fetch 1125bbe
+    - [x] Add `upstream` remote pointing to `https://github.com/raspberrypi/rpicam-apps.git` (if not exists).
+    - [x] Fetch latest changes from `upstream`.
+    - [x] Create a backup branch (e.g., `main-backup-pre-rebase`) to ensure safety.
 - [ ] Task: Execute Rebase
     - [ ] Checkout `main` branch.
     - [ ] Initiate `git rebase upstream/main`.
