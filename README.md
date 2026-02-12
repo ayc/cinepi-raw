@@ -40,9 +40,13 @@ To use a LUT, create a JSON configuration file (e.g., `lut_config.json`) with th
 *   **enabled:** Set to 1 to enable, 0 to disable.
 
 **Running with LUT:**
-Pass the configuration file to the application using the `--post-process-file` argument:
+Pass the configuration file to the application using the `--post-process-file` argument. This works with both `cinepi-raw` and standard `rpicam-apps`:
 
 ```bash
+# Apply LUT to standard video recording (Baked H.264)
+rpicam-vid -t 10000 -o test.h264 --post-process-file lut_config.json
+
+# Use with cinepi-raw
 ./build/cinepi/cinepi-raw --post-process-file lut_config.json
 ```
 
