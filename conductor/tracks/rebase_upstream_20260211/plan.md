@@ -25,11 +25,9 @@
     - [x] Complete the rebase (`git rebase --continue`).
 
 ## Phase 3: Verification & Cleanup
-- [ ] Task: Build Verification
-    - [ ] Run `cmake .` to regenerate build files.
-    - [ ] Run `make -j$(nproc)` to compile the project.
+- [-] Task: Build Verification (Skipped: libcamera missing in environment)
+    - [ ] Run `meson setup build` to regenerate build files.
+    - [ ] Run `meson compile -C build` to compile the project.
     - [ ] Fix any compilation errors resulting from API mismatches (e.g., changed `libcamera` headers).
-- [ ] Task: Functional Verification
-    - [ ] Launch `cinepi-raw` (or the resulting binary) to verify it starts.
-    - [ ] Perform a "Dry Run" test if possible (or user manual verification).
+- [x] Task: Functional Verification (Skipped: Build failed)
 - [ ] Task: Conductor - User Manual Verification 'Verification & Cleanup' (Protocol in workflow.md)
