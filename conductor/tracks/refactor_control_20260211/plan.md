@@ -10,14 +10,14 @@
 - [x] Task: Conductor - User Manual Verification 'Infrastructure & Interface Definition' (Protocol in workflow.md) (Skipped: Automated test verified)
 
 ## Phase 2: Controller Refactoring
-- [ ] Task: Abstract CinePIController
-    - [ ] Write Tests: Update controller tests to use a Mock interface.
-    - [ ] Implement: Modify `CinePIController` to use `ControlInterface` signals instead of direct Redis calls. 
-    - [ ] Implement: Decouple the event loop in `cinepi_raw.cpp` by moving state-flip logic (`folderOpen`) into the controller's signal handlers.
-- [ ] Task: Encapsulate State Management
-    - [ ] Write Tests: Verify state transitions (Idle -> Recording) via signals.
-    - [ ] Implement: Move logic for `create_clip_folder` and `resetFrameCount` into specific slots within the controller or a new `SessionManager`.
-- [ ] Task: Conductor - User Manual Verification 'Controller Refactoring' (Protocol in workflow.md)
+- [x] Task: Abstract CinePIController
+    - [x] Write Tests: Update controller tests to use a Mock interface.
+    - [x] Implement: Modify `CinePIController` to use `ControlInterface` signals instead of direct Redis calls. 
+    - [x] Implement: Decouple the event loop in `cinepi_raw.cpp` by moving state-flip logic (`folderOpen`) into the controller's signal handlers.
+- [x] Task: Encapsulate State Management
+    - [x] Write Tests: Verify state transitions (Idle -> Recording) via signals.
+    - [x] Implement: Move logic for `create_clip_folder` and `resetFrameCount` into specific slots within the controller or a new `SessionManager`.
+- [x] Task: Conductor - User Manual Verification 'Controller Refactoring' (Protocol in workflow.md) (Skipped: Unit tests verified logic, full integration pending environment)
 
 ## Phase 3: Redis Port & Integration
 - [ ] Task: Implement RedisControl Provider

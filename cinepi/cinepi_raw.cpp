@@ -10,6 +10,7 @@
 #include "cinepi_controller.hpp"
 #include "dng_encoder.hpp"
 #include "output/output.hpp"
+#include "control_interface.hpp"
 
 using namespace std::placeholders;
 
@@ -100,7 +101,11 @@ int main(int argc, char *argv[])
 	try
 	{
 		CinePIRecorder app;
-		CinePIController controller(&app);
+        
+        // TODO: In Phase 3, this will be replaced by the concrete RedisControl implementation
+        auto controlInterface = std::make_shared<ControlInterface>();
+        
+		CinePIController controller(&app, controlInterface);
 
 		RawOptions *options = app.GetOptions();
 		if (options->Parse(argc, argv))

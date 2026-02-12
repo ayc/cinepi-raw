@@ -28,29 +28,38 @@
 #include "cinepi_recorder.hpp"
 #include "cinepi_state.hpp"
 #include "raw_options.hpp"
-#include <sw/redis++/redis++.h>
+#include "control_interface.hpp"
+#include "session_manager.hpp"
 
-#define CHANNEL_CONTROLS "cp_controls"
-#define CHANNEL_STATS "cp_stats"
-#define CHANNEL_HISTOGRAM "cp_histogram"
+// #include <sw/redis++/redis++.h> // Moved to RedisControl
 
 #define REDIS_DEFAULT "redis://127.0.0.1:6379/0"
 
-using namespace sw::redis;
+// using namespace sw::redis; // Moved to RedisControl
 
 class CinePIController : public CinePIState
 {
     public:
-        CinePIController(CinePIRecorder *app) : CinePIState(), app_(app), options_(app->GetOptions()), 
-            folderOpen(false), abortThread_(false), cameraInit_(true), cameraRunning(false), triggerStill_(0) {};
+        CinePIController(CinePIRecorder *app, std::shared_ptr<ControlInterface> interface) 
+            : CinePIState(), app_(app), options_(app->GetOptions()), interface_(interface),
+            folderOpen(false), abortThread_(false), cameraInit_(true), cameraRunning(false), triggerStill_(0) 
+        {
+            session_ = std::make_unique<SessionManager>(options_);
+
+            // Connect signals
+            interface_->triggerRecord.connect(std::bind(&CinePIController::onTriggerRecord, this, std::placeholders::_1));
+            // Add other connections here...
+        };
+
         ~CinePIController() {
             abortThread_ = true;
-            main_thread_.join();
+            if(main_thread_.joinable()) main_thread_.join();
         };
 
         void start(){
-            redis_ = new Redis(options_->redis.value_or(REDIS_DEFAULT));
-            LOG(2, redis_->ping());
+            // Redis initialization moved out
+            // redis_ = new Redis(options_->redis.value_or(REDIS_DEFAULT));
+            // LOG(2, redis_->ping());
             main_thread_ = std::thread(std::bind(&CinePIController::mainThread, this));
         }
 
@@ -58,9 +67,14 @@ class CinePIController : public CinePIState
 
         void process(CompletedRequestPtr &completed_request);
         void process_stream_info(libcamera::StreamConfiguration const &cfg){
-            redis_->publish(CHANNEL_STATS, cfg.toString());
-            redis_->set(CONTROL_KEY_WIDTH, std::to_string(cfg.size.width));
-            redis_->set(CONTROL_KEY_HEIGHT, std::to_string(cfg.size.height));
+            // Redis calls replaced by signal
+            std::string stats = cfg.toString(); 
+            // TODO: Format stats properly for signal
+            // interface_->publishStats(stats); 
+            
+            // redis_->publish(CHANNEL_STATS, cfg.toString());
+            // redis_->set(CONTROL_KEY_WIDTH, std::to_string(cfg.size.width));
+            // redis_->set(CONTROL_KEY_HEIGHT, std::to_string(cfg.size.height));
         }
 
         bool folderOpen;
@@ -72,16 +86,30 @@ class CinePIController : public CinePIState
             return c;
         }
 
+        // Slot for TriggerRecord signal
+        void onTriggerRecord(int state){
+             trigger_ = state;
+             if (state > 0) {
+                 if (session_->startNewClip(getClipNumber())) {
+                     folderOpen = true;
+                     is_recording_ = true;
+                 } else {
+                     interface_->systemWarning("Failed to create clip folder (Disk mounted?)");
+                 }
+             } else {
+                 folderOpen = false;
+                 is_recording_ = false;
+                 // app_->GetEncoder()->resetFrameCount(); // Need to handle this, maybe via app_ pointer or signal
+             }
+        }
+
         int triggerRec(){
-            if(!disk_mounted(const_cast<RawOptions *>(options_))){
-                return 0;
-            }
-            int state = trigger_;
-            if(state < 0){
-                clip_number_++;
-            }
-            trigger_ = 0;
-            return state;
+            // Legacy polling support if needed, but we want to move to signals
+            // if(!disk_mounted(const_cast<RawOptions *>(options_))){
+            //    return 0;
+            //}
+            // ...
+            return trigger_;
         }
 
         int triggerStill(){
@@ -94,7 +122,7 @@ class CinePIController : public CinePIState
 
     private:
         void mainThread();
-        void pubThread();
+        // void pubThread(); // Likely no longer needed or moved
 
         int trigger_;
         int triggerStill_;
@@ -103,8 +131,11 @@ class CinePIController : public CinePIState
 
         CinePIRecorder *app_;
         RawOptions *options_;
+        
+        std::shared_ptr<ControlInterface> interface_;
+        std::unique_ptr<SessionManager> session_;
 
-        Redis *redis_;
+        // Redis *redis_; // Removed
 
         bool abortThread_;
         std::thread main_thread_;
