@@ -9,3 +9,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 ---
 
 
+
+---
+
+- [x] **Track: Complete Redis Control Feature Parity**
+*Link: [./tracks/redis_parity_20260211/](./tracks/redis_parity_20260211/)*
