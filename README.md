@@ -4,19 +4,21 @@
 
 *Fork of rpicam-apps (formerly libcamera-apps) that builds upon the rpicam-raw app, offering CinemaDNG recording capabilities and integration with Redis offering an abstract "API" like layer for custom integrations.*
 
-Requirements
------
-Please install the below requirements before continuing with the rest of the build process:
+### Build Instructions
 
-[Redis](https://github.com/redis/redis)
+1. **Install Dependencies:**
+   ```bash
+   sudo apt update
+   sudo apt install -y libcamera-dev libboost-program-options-dev libhiredis-dev libredis++-dev libtiff-dev meson ninja-build
+   ```
 
-[Hiredis](https://github.com/redis/hiredis)
+2. **Setup and Compile:**
+   ```bash
+   meson setup build
+   meson compile -C build
+   ```
 
-[Redis++](https://github.com/sewenew/redis-plus-plus)
-
-Build
------
-For usage and build instructions, see the official Raspberry Pi documentation pages [here.](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera-and-rpicam-apps)
+For advanced usage, refer to the official [Raspberry Pi documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera-and-rpicam-apps).
 
 License
 -------
