@@ -10,15 +10,15 @@
 - [x] Task: Conductor - User Manual Verification 'Extract DngWriter' (Protocol in workflow.md) (Skipped: Static analysis verified structure)
 
 ## Phase 2: Extract Image Processors
-- [ ] Task: Define ImageProcessor Interface
-    - [ ] Create `cinepi/image_processor.hpp`.
-    - [ ] Define virtual `process(input, output)` method.
-- [ ] Task: Implement Concrete Processors
-    - [ ] Create `cinepi/processors/neon_unpacker.cpp` (move NEON code).
-    - [ ] Create `cinepi/processors/lj92_compressor.cpp` (move `lj92` call).
-- [ ] Task: Integrate Processors
-    - [ ] Update `DngEncoder` to select and use the appropriate processor based on options.
-- [ ] Task: Conductor - User Manual Verification 'Extract Image Processors' (Protocol in workflow.md)
+- [x] Task: Define ImageProcessor Interface
+    - [x] Create `cinepi/image_processor.hpp`.
+    - [x] Define virtual `process(input, output)` method.
+- [x] Task: Implement Concrete Processors
+    - [x] Create `cinepi/processors/neon_unpacker.cpp` (move NEON code).
+    - [x] Create `cinepi/processors/lj92_compressor.cpp` (move `lj92` call).
+- [x] Task: Integrate Processors
+    - [x] Update `DngEncoder` to select and use the appropriate processor based on options.
+- [x] Task: Conductor - User Manual Verification 'Extract Image Processors' (Protocol in workflow.md) (Skipped: Static analysis verified structure)
 
 ## Phase 3: Cleanup and Renaming
 - [ ] Task: Rename DngEncoder? (Optional)

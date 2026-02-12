@@ -6,14 +6,13 @@
 #include <cstring>
 #include <chrono>
 #include <tiffio.h>
-#include <arm_neon.h>
 
 #include <libcamera/control_ids.h>
 #include <libcamera/formats.h>
 
-#include "lj92.h"
 #include "yuv2rgb.hpp"
 #include "core/logging.hpp"
+#include "cinepi/utils.hpp" // For CompressionType
 
 using namespace libcamera;
 
@@ -51,14 +50,6 @@ static const TIFFFieldInfo xtiffFieldInfo[] = {
     { TIFFTAG_TIMECODE,	8, 8, TIFF_BYTE,	FIELD_CUSTOM,
       true,	false,	"TimeCodes" },
 };
-
-extern __attribute__((noinline, section("disasm"))) void unpack12p(uint8x16x3_t *input){
-    uint8x16_t tmp1 = input->val[1];
-    uint8x16_t tmp2 = input->val[2];
-
-    input->val[1] = vorrq_u8(vshlq_n_u8(tmp2,4),vshrq_n_u8(tmp1,4));
-    input->val[2] = vorrq_u8(vshlq_n_u8(tmp1,4),vshrq_n_u8(tmp2,4));
-}
 
 struct Matrix
 {
@@ -111,10 +102,13 @@ Matrix(float m0, float m1, float m2,
 
 DngWriter::DngWriter(RawOptions const *options) : options_(options) {}
 
-void DngWriter::writeFrame(uint8_t const *mem, StreamInfo const &info,
+void DngWriter::writeFrame(uint8_t const *mem, size_t size, StreamInfo const &info,
                            uint8_t const *lomem, StreamInfo const &loinfo, size_t losize,
                            libcamera::ControlList const &metadata, std::string const &filename, uint64_t fn)
 {
+    // Note: 'mem' is assumed to be PRE-PROCESSED (unpacked or compressed).
+    // 'size' is the size of the processed buffer 'mem'.
+    
     uint8_t rawUniq[8]; 
 	memset(rawUniq, 0, sizeof(rawUniq));
 	auto rU = metadata.get(libcamera::controls::SensorTimestamp);
@@ -172,7 +166,6 @@ void DngWriter::writeFrame(uint8_t const *mem, StreamInfo const &info,
 		WB_GAINS = Matrix((*cg)[0], 1, (*cg)[1]);
 	}
 
-	// Use a slightly plausible default CCM in case the metadata doesn't have one (it should!).
 	Matrix CCM(1.90255, -0.77478, -0.12777,
 			   -0.31338, 1.88197, -0.56858,
 			   -0.06001, -0.61785, 1.67786);
@@ -184,13 +177,10 @@ void DngWriter::writeFrame(uint8_t const *mem, StreamInfo const &info,
 	else
 		LOG_ERROR("WARNING: no CCM metadata found");
 
-	// This maxtrix from http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 	Matrix RGB2XYZ(0.4124564, 0.3575761, 0.1804375,
 				   0.2126729, 0.7151522, 0.0721750,
 				   0.0193339, 0.1191920, 0.9503041);
 	Matrix CAM_XYZ = (RGB2XYZ * CCM * WB_GAINS).Inv();
-
-	// Finally write the DNG.
 
 	TIFF *tif = nullptr;
 
@@ -284,63 +274,23 @@ void DngWriter::writeFrame(uint8_t const *mem, StreamInfo const &info,
 		const char tiemcode[] = { (uint8_t)(fn % (uint8_t)frameRate),time_info->tm_sec,time_info->tm_min, time_info->tm_hour, 0, 0, 0, 0 };
 		TIFFSetField(tif, TIFFTAG_TIMECODE, &tiemcode);
 
-		bool uncompressed = (info.pixel_format != formats::SBGGR12 || info.pixel_format != formats::SBGGR10 );
-
-		if(uncompressed && options_->compression == COMPRESSION_NONE){
-			// NEON UNPACK
-			uint8x16x3_t nbuf;
-			uint8x16x3_t nbuf1;
-			uint8x16x3_t nbuf2;
-			uint8x16x3_t nbuf3;
-
-			auto start_time = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<double> encode_time(0);
+		if(options_->compression == COMPRESSION_NONE){
+            // Uncompressed: mem contains unpacked 16-bit data.
+            // Stride of input was info.stride (packed). Unpacked stride is width * 2.
+            unsigned int unpacked_stride = info.width * 2;
+            
 			for (unsigned int y = 0; y < info.height; y++)
 			{
-				uint64_t buffer[384];
-				uint64_t* read = (uint64_t *)(mem + y*info.stride);
-
-				for(uint64_t* write = buffer; write < buffer + info.stride/8; write += 24){
-					nbuf = vld3q_u8((uint8_t const*)read);
-					nbuf1 = vld3q_u8((uint8_t const*)read+48);
-					nbuf2 = vld3q_u8((uint8_t const*)read+96);
-					nbuf3 = vld3q_u8((uint8_t const*)read+144);
-					unpack12p(&nbuf);
-					unpack12p(&nbuf1);
-					unpack12p(&nbuf2);
-					unpack12p(&nbuf3);
-					vst3q_u8((uint8_t *)write, nbuf);
-					vst3q_u8((uint8_t *)write+48, nbuf1);
-					vst3q_u8((uint8_t *)write+96, nbuf2);
-					vst3q_u8((uint8_t *)write+144, nbuf3);
-					read += 24;
-				}
-				encode_time += (std::chrono::high_resolution_clock::now() - start_time);
-
-				if (TIFFWriteScanline(tif, (uint8_t *)buffer, y, 0) != 1)
+                // Write row by row from the pre-processed buffer
+                uint8_t *row_ptr = (uint8_t *)mem + y * unpacked_stride;
+                
+				if (TIFFWriteScanline(tif, row_ptr, y, 0) != 1)
 					throw std::runtime_error("error writing DNG image data");
 			}
-			LOG(2, "unpack in: " << (encode_time.count()) << "ms");
-			// END NEON UNPACK
 		} else if(options_->compression == COMPRESSION_JPEG){
-			// LJ92 START
-			uint8_t *encoded = NULL;
-			int encodedLength;
-			int w, h;
-			w = info.stride / 2;
-			h = info.height;
-			auto start_time = std::chrono::high_resolution_clock::now();
-			int ret = lj92_encode((uint16_t*)mem,w*2,(h/2),16,w*h,0,NULL,0,&encoded,&encodedLength);
-			auto end_time = (std::chrono::high_resolution_clock::now() - start_time);
-			auto duration(std::chrono::duration_cast<std::chrono::milliseconds>(end_time));
-			if(ret == LJ92_ERROR_NONE){
-				TIFFWriteRawStrip(tif, 0, &encoded[0], encodedLength);
-			} else {
-				throw std::runtime_error("LJ92 Failed!");
-			}
-			free(encoded);
-			//LJ92 END
-			// LOG(1, "SIZE: " << encodedLength << " in :" << duration.count());
+            // Compressed: mem contains the entire compressed blob.
+            // Use TIFFWriteRawStrip with the size provided by the processor.
+            TIFFWriteRawStrip(tif, 0, (tdata_t)mem, size);
 		}
 
 		TIFFCheckpointDirectory(tif);

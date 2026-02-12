@@ -15,14 +15,15 @@ public:
 
     // Writes a DNG file to disk.
     // mem: Pointer to the main image data (likely already unpacked/compressed).
-    // info: Stream info for the main image.
+    // size: Size of the main image data (in bytes).
+    // info: Stream info for the main image (describing dimensions/stride).
     // lomem: Pointer to the thumbnail image data.
     // loinfo: Stream info for the thumbnail.
     // losize: Size of the thumbnail data.
     // metadata: Camera metadata for the frame.
     // filename: Output filename.
     // fn: Frame number (for timecode/sequence).
-    void writeFrame(uint8_t const *mem, StreamInfo const &info,
+    void writeFrame(uint8_t const *mem, size_t size, StreamInfo const &info,
                     uint8_t const *lomem, StreamInfo const &loinfo, size_t losize,
                     libcamera::ControlList const &metadata, std::string const &filename, uint64_t fn);
 

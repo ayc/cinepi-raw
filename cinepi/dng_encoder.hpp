@@ -11,6 +11,7 @@
 #include "raw_options.hpp"
 #include "cinepi_frameinfo.hpp"
 #include "dng_writer.hpp"
+#include "image_processor.hpp"
 
 class DngEncoder : public Encoder
 {
@@ -60,6 +61,8 @@ private:
     RawOptions const *options_;
 
     std::unique_ptr<DngWriter> dng_writer_;
+    std::unique_ptr<ImageProcessor> neon_unpacker_;
+    std::unique_ptr<ImageProcessor> lj92_compressor_;
 
 	struct EncodeItem
 	{
