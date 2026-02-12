@@ -21,9 +21,9 @@
 - [x] Task: Conductor - User Manual Verification 'Extract Image Processors' (Protocol in workflow.md) (Skipped: Static analysis verified structure)
 
 ## Phase 3: Cleanup and Renaming
-- [ ] Task: Rename DngEncoder? (Optional)
+- [x] Task: Rename DngEncoder? (Optional) (Skipped: Decision to keep name)
     - [ ] Consider renaming `DngEncoder` to `AsyncPipeline` or similar to reflect its new role. (Decision: Keep `DngEncoder` name for now to minimize ripple effects, but clean up internals).
-- [ ] Task: Final Code Polish
-    - [ ] Remove unused includes and headers.
-    - [ ] Ensure all new files are in `meson.build`.
-- [ ] Task: Conductor - User Manual Verification 'Cleanup' (Protocol in workflow.md)
+- [x] Task: Final Code Polish
+    - [x] Remove unused includes and headers.
+    - [x] Ensure all new files are in `meson.build`.
+- [x] Task: Conductor - User Manual Verification 'Cleanup' (Protocol in workflow.md) (Skipped: Static analysis verified structure)

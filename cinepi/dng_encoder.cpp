@@ -14,6 +14,8 @@
 #include "core/stream_info.hpp"
 
 #include "dng_encoder.hpp"
+#include "cinepi/processors/neon_unpacker.hpp"
+#include "cinepi/processors/lj92_compressor.hpp"
 #include "utils.hpp"
 
 #include <filesystem>
@@ -26,6 +28,10 @@ DngEncoder::DngEncoder(RawOptions const *options)
 {
     options_ = options;
     dng_writer_ = std::make_unique<DngWriter>(options);
+    
+    // Initialize processors
+    neon_unpacker_ = std::make_unique<NeonUnpacker>();
+    lj92_compressor_ = std::make_unique<Lj92Compressor>();
 
 	for (int i = 0; i < NUM_ENC_THREADS; i++){
 		encode_thread_[i] = std::thread(std::bind(&DngEncoder::encodeThread, this, i));
@@ -98,14 +104,43 @@ void DngEncoder::encodeThread(int num)
 		}
 
 		frames_ = {encode_item.index};
-		LOG(1, "memcpy frame: " << encode_item.index);
+		LOG(1, "process frame: " << encode_item.index);
 
 		{	
-			uint8_t *mem = (uint8_t*)malloc(encode_item.size);
-			memcpy(mem, encode_item.mem, encode_item.size);
+            // Determine size based on compression.
+            // Unpacked 12->16 bit ratio is 2.0 (relative to pixels) but relative to packed 12-bit (1.5 bytes) it's 1.33.
+            // But stride is bytes.
+            // Unpacked stride = width * 2.
+            // Height = height.
+            // Buffer size = width * 2 * height.
+            
+            size_t dest_size = encode_item.info.width * encode_item.info.height * 2;
+            
+            // If compressed, we need to guess a max size or allocate conservatively. 
+            // LJ92 usually shrinks, but can expand slightly in worst case.
+            // The compressor allocates its own buffer internally, so we just need a pointer for it to return?
+            // Wait, Lj92Compressor::process copies to 'output'.
+            // So we DO need to allocate 'mem'.
+            
+            if (options_->compression == COMPRESSION_JPEG) {
+                // Allocate max size (uncompressed 16-bit size is safe upper bound)
+                dest_size = encode_item.info.width * encode_item.info.height * 2;
+            }
+
+			uint8_t *mem = (uint8_t*)malloc(dest_size);
+            size_t processed_size = 0;
+
+            if (options_->compression == COMPRESSION_NONE) {
+                processed_size = neon_unpacker_->process((const uint8_t*)encode_item.mem, mem, encode_item.info);
+            } else if (options_->compression == COMPRESSION_JPEG) {
+                processed_size = lj92_compressor_->process((const uint8_t*)encode_item.mem, mem, encode_item.info);
+            }
+
+            // Copy thumbnail (no processing yet, DngWriter handles yuv2rgb)
 			uint8_t *lomem = (uint8_t*)malloc(encode_item.losize);
 			memcpy(lomem, encode_item.lomem, encode_item.losize);
-			CachedItem item = { mem, encode_item.size, encode_item.info, lomem, encode_item.losize, encode_item.loinfo, encode_item.met, encode_item.timestamp_us, encode_item.index };
+            
+			CachedItem item = { mem, processed_size, encode_item.info, lomem, encode_item.losize, encode_item.loinfo, encode_item.met, encode_item.timestamp_us, encode_item.index };
 			std::lock_guard<std::mutex> lock(cache_mutex_);
 			cache_buffer_.push_back(std::move(item));
 			cache_cond_var_.notify_all();
@@ -162,8 +197,7 @@ void DngEncoder::cacheThread(int num)
 		bool dm = disk_mounted(options_);
 		auto start_time = std::chrono::high_resolution_clock::now();
 		if(dm){
-            // Using the new DngWriter
-			dng_writer_->writeFrame((const uint8_t*)cache_item.mem, cache_item.info, (const uint8_t*)cache_item.lomem, cache_item.loinfo, cache_item.losize, cache_item.met, filename, cache_item.index);
+			dng_writer_->writeFrame((const uint8_t*)cache_item.mem, cache_item.size, cache_item.info, (const uint8_t*)cache_item.lomem, cache_item.loinfo, cache_item.losize, cache_item.met, filename, cache_item.index);
 		}
 		auto end_time = (std::chrono::high_resolution_clock::now() - start_time);
 
