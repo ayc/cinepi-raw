@@ -86,6 +86,7 @@ pkg.generate(rpicam_app,
              version: meson.project_version())
 
 subdir('apps')
+subdir('cinepi')
 
 summary({
             'libav encoder' : enable_libav,
