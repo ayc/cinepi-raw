@@ -144,3 +144,27 @@ post_processing_headers = files([
 
 install_headers(post_processing_headers, subdir: meson.project_name() / 'post_processing_stages')
 install_data(postproc_assets, install_dir : get_option('datadir') / 'rpi-camera-assets')
+
+# EGL/GL based postprocessing stages.
+enable_egl_postproc = false
+epoxy_dep = dependency('epoxy', required : false)
+# We might need X11 for EGL context creation depending on the platform, 
+# reusing enable_egl option logic from preview might be consistent.
+# For now, let's check for epoxy which is the main GL wrapper.
+
+if epoxy_dep.found()
+    egl_postproc_src = files([
+        'lut_stage.cpp',
+    ])
+
+    egl_postproc_lib = shared_module('egl-postproc', egl_postproc_src,
+                                     include_directories : '../',
+                                     dependencies : [libcamera_dep, epoxy_dep],
+                                     cpp_args : cpp_arguments,
+                                     install : true,
+                                     install_dir : posproc_libdir,
+                                     name_prefix : '',
+                                    )
+    enable_egl_postproc = true
+endif
+
