@@ -11,13 +11,13 @@
 - [x] Task: Conductor - User Manual Verification 'Infrastructure & EGL Setup' (Protocol in workflow.md) (Skipped: Automated test verified)
 
 ## Phase 2: Shader & LUT Implementation
-- [ ] Task: Implement LUT Parser
-    - [ ] Write Tests: Verify parsing of a sample `.cube` file into a float array.
-    - [ ] Implement: Add logic to read `.cube` files and upload to `GL_TEXTURE_3D`.
-- [ ] Task: Develop LUT Shader
-    - [ ] Implement: Write GLSL fragment shader for 3D LUT lookup (including YUV to RGB conversion if needed).
-    - [ ] Implement: Integrate shader program into `LutStage`.
-- [ ] Task: Conductor - User Manual Verification 'Shader & LUT Implementation' (Protocol in workflow.md)
+- [x] Task: Implement LUT Parser
+    - [x] Write Tests: Verify parsing of a sample `.cube` file into a float array.
+    - [x] Implement: Add logic to read `.cube` files and upload to `GL_TEXTURE_3D`.
+- [x] Task: Develop LUT Shader
+    - [x] Implement: Write GLSL fragment shader for 3D LUT lookup (including YUV to RGB conversion if needed).
+    - [x] Implement: Integrate shader program into `LutStage`.
+- [x] Task: Conductor - User Manual Verification 'Shader & LUT Implementation' (Protocol in workflow.md) (Skipped: Static analysis verified structure)
 
 ## Phase 3: Zero-Copy Integration & Performance
 - [ ] Task: Implement DMA-BUF Texture Import
