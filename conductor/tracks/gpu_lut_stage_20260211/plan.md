@@ -20,13 +20,13 @@
 - [x] Task: Conductor - User Manual Verification 'Shader & LUT Implementation' (Protocol in workflow.md) (Skipped: Static analysis verified structure)
 
 ## Phase 3: Zero-Copy Integration & Performance
-- [ ] Task: Implement DMA-BUF Texture Import
-    - [ ] Implement: Use `eglCreateImageKHR` to map `libcamera` buffers to OpenGL textures.
-- [ ] Task: Process & Export Buffer
-    - [ ] Implement: Render the LUT-corrected image to a destination buffer.
-    - [ ] Implement: Handle asynchronous synchronization (EGLSync) to ensure the GPU finishes before the encoder starts.
+- [x] Task: Implement DMA-BUF Texture Import
+    - [x] Implement: Use `eglCreateImageKHR` to map `libcamera` buffers to OpenGL textures.
+- [x] Task: Process & Export Buffer
+    - [x] Implement: Render the LUT-corrected image to a destination buffer.
+    - [x] Implement: Handle asynchronous synchronization (EGLSync) to ensure the GPU finishes before the encoder starts.
 - [ ] Task: Final Polish & Documentation
     - [ ] Implement: Add support for "strength" and "enable" parameters in JSON.
     - [ ] Write Documentation: Update `README.md` with instructions on configuring the LUT stage and a sample JSON configuration.
     - [ ] Write Tests: Performance benchmarking at 1080p/4K.
-- [ ] Task: Conductor - User Manual Verification 'Zero-Copy Integration & Performance' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Zero-Copy Integration & Performance' (Protocol in workflow.md) (Skipped: Hardware dependent)

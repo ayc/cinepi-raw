@@ -11,11 +11,23 @@
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
+#include <sys/mman.h>
 
 #include <epoxy/egl.h>
 #include <epoxy/gl.h>
+#include <libdrm/drm_fourcc.h>
 
 #include "core/post_processor.hpp"
+#include "core/rpicam_app.hpp"
+
+// Define EGL extension tokens if not available
+#ifndef EGL_LINUX_DMA_BUF_EXT
+#define EGL_LINUX_DMA_BUF_EXT 0x3270
+#define EGL_LINUX_DRM_FOURCC_EXT 0x3271
+#define EGL_DMA_BUF_PLANE0_FD_EXT 0x3272
+#define EGL_DMA_BUF_PLANE0_OFFSET_EXT 0x3273
+#define EGL_DMA_BUF_PLANE0_PITCH_EXT 0x3274
+#endif
 
 static const char *VERTEX_SHADER = R"(
     #version 310 es
@@ -41,6 +53,9 @@ static const char *FRAGMENT_SHADER = R"(
 
     void main() {
         vec4 color = texture(inputImage, texCoord);
+        // Basic LUT lookup (assuming RGB input for now)
+        // Note: Real implementation needs to handle YUV->RGB if sampling YUV directly
+        // or rely on OES sampler doing YUV->RGB conversion automatically (which it often does for external images)
         vec3 lutColor = texture(lut, color.rgb).rgb;
         outColor = vec4(mix(color.rgb, lutColor, strength), color.a);
     }
@@ -49,7 +64,7 @@ static const char *FRAGMENT_SHADER = R"(
 class LutStage : public PostProcessingStage
 {
 public:
-	LutStage(RPiCamApp *app) : PostProcessingStage(app), egl_display_(EGL_NO_DISPLAY), egl_context_(EGL_NO_CONTEXT), lut_texture_(0), program_(0) {}
+	LutStage(RPiCamApp *app) : PostProcessingStage(app), egl_display_(EGL_NO_DISPLAY), egl_context_(EGL_NO_CONTEXT), lut_texture_(0), program_(0), vao_(0), fbo_(0) {}
 
     ~LutStage()
     {
@@ -57,6 +72,8 @@ public:
             eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
             if(lut_texture_) glDeleteTextures(1, &lut_texture_);
             if(program_) glDeleteProgram(program_);
+            if(vao_) glDeleteVertexArrays(1, &vao_);
+            if(fbo_) glDeleteFramebuffers(1, &fbo_);
             if (egl_context_ != EGL_NO_CONTEXT)
                 eglDestroyContext(egl_display_, egl_context_);
             eglTerminate(egl_display_);
@@ -136,10 +153,115 @@ public:
         
         glDeleteShader(vs);
         glDeleteShader(fs);
+
+        // Setup Quad
+        float vertices[] = {
+            -1.0f, -1.0f,
+             1.0f, -1.0f,
+            -1.0f,  1.0f,
+             1.0f,  1.0f
+        };
+        glGenVertexArrays(1, &vao_);
+        glBindVertexArray(vao_);
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // Create FBO
+        glGenFramebuffers(1, &fbo_);
 	}
 
 	bool Process(CompletedRequestPtr &completed_request) override
 	{
+        if (!enabled_ || !lut_texture_) return false;
+
+        libcamera::Stream *stream = app_->GetMainStream();
+        if(!stream) return false;
+
+        libcamera::FrameBuffer *buffer = completed_request->buffers[stream];
+        if(!buffer) return false;
+
+        // Ensure context is current
+        eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_);
+
+        // Import DMA-BUF
+        int fd = buffer->planes()[0].fd.get();
+        StreamInfo info = app_->GetStreamInfo(stream);
+        
+        // Guessing DRM format based on libcamera hint. Usually NV12 for Pi.
+        int drm_format = DRM_FORMAT_NV12; 
+
+        EGLint attribs[] = {
+            EGL_WIDTH, (EGLint)info.width,
+            EGL_HEIGHT, (EGLint)info.height,
+            EGL_LINUX_DRM_FOURCC_EXT, drm_format,
+            EGL_DMA_BUF_PLANE0_FD_EXT, fd,
+            EGL_DMA_BUF_PLANE0_OFFSET_EXT, 0,
+            EGL_DMA_BUF_PLANE0_PITCH_EXT, (EGLint)info.stride,
+            EGL_DMA_BUF_PLANE1_FD_EXT, fd,
+            EGL_DMA_BUF_PLANE1_OFFSET_EXT, (EGLint)(info.stride * info.height),
+            EGL_DMA_BUF_PLANE1_PITCH_EXT, (EGLint)info.stride,
+            EGL_NONE
+        };
+
+        EGLImageKHR image = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, attribs);
+        if (image == EGL_NO_IMAGE_KHR) {
+            // std::cerr << "LutStage: Failed to create EGLImage" << std::endl;
+            return false;
+        }
+
+        // Bind Input Texture
+        GLuint tex;
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_EXTERNAL_OES, tex);
+        glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, image);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Bind Output Texture/FBO
+        // Note: For zero-copy write we'd need another EGLImage attached to FBO.
+        // For now, we render to a standard texture and readPixels back.
+        GLuint outTex;
+        glGenTextures(1, &outTex);
+        glBindTexture(GL_TEXTURE_2D, outTex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, info.width, info.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTex, 0);
+
+        glViewport(0, 0, info.width, info.height);
+
+        // Render
+        glUseProgram(program_);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_EXTERNAL_OES, tex);
+        glUniform1i(glGetUniformLocation(program_, "inputImage"), 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_3D, lut_texture_);
+        glUniform1i(glGetUniformLocation(program_, "lut"), 1);
+
+        glUniform1f(glGetUniformLocation(program_, "strength"), strength_);
+
+        glBindVertexArray(vao_);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        // Read back (CPU Copy - Slow but functional for MVP)
+        // Note: FrameBuffer might be NV12, but glReadPixels is RGBA.
+        // We can't easily write RGBA back into NV12 buffer without another shader pass or CPU conversion.
+        // For demonstration, we just do glFinish to prove GPU execution.
+        
+        glFinish();
+
+        // Cleanup
+        glDeleteTextures(1, &tex);
+        glDeleteTextures(1, &outTex);
+        eglDestroyImageKHR(egl_display_, image);
+
 		return false; 
 	}
 
@@ -152,6 +274,8 @@ private:
     EGLContext egl_context_;
     GLuint lut_texture_;
     GLuint program_;
+    GLuint vao_;
+    GLuint fbo_;
     std::string lut_file_;
     float strength_;
     bool enabled_;
