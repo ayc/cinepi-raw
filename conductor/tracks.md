@@ -6,7 +6,13 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 
 
----
+- [x] **Track: Update README project description to reflect modular control architecture.**
+
+
+
+
+
+  *Link: [./tracks/readme_tweak_20260211/](./tracks/readme_tweak_20260211/)*
 
 
 
