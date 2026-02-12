@@ -2,7 +2,7 @@
 
 ## Core Technologies
 - **C++17:** The primary programming language used for high-performance camera control and raw frame processing.
-- **CMake:** The build system for managing dependencies and generating build files across Raspberry Pi OS distributions.
+- **Meson:** The build system for managing dependencies and generating build files, aligned with upstream `rpicam-apps`.
 - **libcamera:** The underlying Linux camera framework used for sensor abstraction and image signal processing (ISP).
 - **rpicam-apps (Upstream):** The foundation framework providing the application structure, encoder interfaces, and camera management.
 
