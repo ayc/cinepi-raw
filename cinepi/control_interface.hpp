@@ -19,6 +19,18 @@ public:
     // Signal signature: void(float fps)
     boost::signals2::signal<void(float)> setFrameRate;
 
+    // Signal signature: void(int awb_mode)
+    boost::signals2::signal<void(int)> setWb;
+
+    // Signal signature: void(float red_gain, float blue_gain)
+    boost::signals2::signal<void(float, float)> setColorGains;
+
+    // Signal signature: void(float angle)
+    boost::signals2::signal<void(float)> setShutterAngle;
+
+    // Signal signature: void()
+    boost::signals2::signal<void()> triggerStill;
+
     // Outbound Signals (Controller -> External Source)
     // Signal signature: void(std::string stats_json)
     boost::signals2::signal<void(const std::string&)> publishStats;
