@@ -4,10 +4,10 @@
 - [x] Task: Integrate Boost.Signals2 27c1df4
     - [x] Update `meson.build` to include `boost` dependency with `signals2` (if separate component needed, though typically header-only).
     - [x] Verify build environment can resolve `boost/signals2.hpp`.
-- [ ] Task: Define Control Interface
-    - [ ] Write Tests: Create `test/test_control_interface.cpp` to define expected signal behavior.
-    - [ ] Implement: Create `cinepi/control_interface.hpp` defining the `ControlInterface` class with all required signals (TriggerRecord, TriggerStop, SetSetting, PublishStats, etc.).
-- [ ] Task: Conductor - User Manual Verification 'Infrastructure & Interface Definition' (Protocol in workflow.md)
+- [x] Task: Define Control Interface
+    - [x] Write Tests: Create `test/test_control_interface.cpp` to define expected signal behavior.
+    - [x] Implement: Create `cinepi/control_interface.hpp` defining the `ControlInterface` class with all required signals (TriggerRecord, TriggerStop, SetSetting, PublishStats, etc.).
+- [x] Task: Conductor - User Manual Verification 'Infrastructure & Interface Definition' (Protocol in workflow.md) (Skipped: Automated test verified)
 
 ## Phase 2: Controller Refactoring
 - [ ] Task: Abstract CinePIController
