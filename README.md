@@ -2,7 +2,7 @@
 
 # CinePi Raw
 
-*Fork of rpicam-apps (formerly libcamera-apps) that builds upon the rpicam-raw app, offering CinemaDNG recording capabilities and integration with Redis offering an abstract "API" like layer for custom integrations.*
+*Fork of rpicam-apps (formerly libcamera-apps) that builds upon the rpicam-raw app, offering CinemaDNG recording capabilities and a modular control layer that supports multiple interfaces (starting with Redis) for custom integrations/remote control.*
 
 ### Build Instructions
 
