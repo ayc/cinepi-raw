@@ -18,6 +18,34 @@
    meson compile -C build
    ```
 
+### Using 3D LUTs (GPU Accelerated)
+
+CinePi Raw supports applying real-time 3D Look Up Tables (LUTs) to the video stream using the GPU. This is implemented as a post-processing stage.
+
+**Configuration:**
+To use a LUT, create a JSON configuration file (e.g., `lut_config.json`) with the following structure:
+
+```json
+{
+    "lut": {
+        "file": "/path/to/your/look.cube",
+        "strength": 1.0,
+        "enabled": 1
+    }
+}
+```
+
+*   **file:** Absolute path to a standard `.cube` 3D LUT file (33x33x33 and 64x64x64 supported).
+*   **strength:** Blending factor between 0.0 (original) and 1.0 (fully processed).
+*   **enabled:** Set to 1 to enable, 0 to disable.
+
+**Running with LUT:**
+Pass the configuration file to the application using the `--post-process-file` argument:
+
+```bash
+./build/cinepi/cinepi-raw --post-process-file lut_config.json
+```
+
 For advanced usage, refer to the official [Raspberry Pi documentation](https://www.raspberrypi.com/documentation/computers/camera_software.html#building-libcamera-and-rpicam-apps).
 
 License
