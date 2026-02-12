@@ -48,6 +48,7 @@ class CinePIController : public CinePIState
 
             // Connect signals
             interface_->triggerRecord.connect(std::bind(&CinePIController::onTriggerRecord, this, std::placeholders::_1));
+            interface_->triggerStill.connect(std::bind(&CinePIController::onTriggerStill, this));
             // Add other connections here...
         };
 
@@ -101,6 +102,13 @@ class CinePIController : public CinePIState
                  is_recording_ = false;
                  // app_->GetEncoder()->resetFrameCount(); // Need to handle this, maybe via app_ pointer or signal
              }
+        }
+
+        // Slot for TriggerStill signal
+        void onTriggerStill() {
+            triggerStill_ = 1;
+            session_->ensureStillsFolder();
+            still_number_++; // Increment abstract state count
         }
 
         int triggerRec(){

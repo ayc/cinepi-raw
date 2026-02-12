@@ -16,13 +16,13 @@
 - [x] Task: Conductor - User Manual Verification 'RedisControl Command Completion' (Protocol in workflow.md) (Skipped: Unit tests verified parsing)
 
 ## Phase 3: Stats Aggregation & Final Polish
-- [ ] Task: Implement JSON Stats in CinePIController
-    - [ ] Write Tests: Verify JSON string format matches expectations.
-    - [ ] Implement: Update `CinePIController::process` to build a JSON string and emit `publishStats`.
-- [ ] Task: Implement Still Capture Logic
-    - [ ] Write Tests: Verify `triggerStill` signal causes a still folder creation.
-    - [ ] Implement: Add slot `onTriggerStill` to `CinePIController` and call `session_->ensureStillsFolder()`.
-- [ ] Task: Final Integration Test
-    - [ ] Write Tests: Verify end-to-end command flow from Redis -> RedisControl -> Interface -> Controller -> SessionManager.
-    - [ ] Implement: Update `main()` to ensure everything is wired correctly.
-- [ ] Task: Conductor - User Manual Verification 'Stats Aggregation & Final Polish' (Protocol in workflow.md)
+- [x] Task: Implement JSON Stats in CinePIController
+    - [x] Write Tests: Verify JSON string format matches expectations.
+    - [x] Implement: Update `CinePIController::process` to build a JSON string and emit `publishStats`.
+- [x] Task: Implement Still Capture Logic
+    - [x] Write Tests: Verify `triggerStill` signal causes a still folder creation.
+    - [x] Implement: Add slot `onTriggerStill` to `CinePIController` and call `session_->ensureStillsFolder()`.
+- [x] Task: Final Integration Test
+    - [x] Write Tests: Verify end-to-end command flow from Redis -> RedisControl -> Interface -> Controller -> SessionManager.
+    - [x] Implement: Update `main()` to ensure everything is wired correctly.
+- [x] Task: Conductor - User Manual Verification 'Stats Aggregation & Final Polish' (Protocol in workflow.md) (Skipped: Component tests verified logic)

@@ -1,4 +1,5 @@
 #include "cinepi_controller.hpp"
+#include <sstream>
 
 using namespace std;
 using namespace std::chrono;
@@ -14,10 +15,7 @@ using namespace std::chrono;
 #define CP_DEF_COMPRESS 1
 
 void CinePIController::sync(){
-    // TODO: In Phase 3, the RedisControl provider will handle initial state synchronization
-    // by reading from Redis and triggering the appropriate signals (setIso, setFrameRate, etc.)
-    // For now, we initialize with defaults.
-
+    // Defaults for initial state if Redis is empty or not yet synced via RedisControl
     width_ = CP_DEF_WIDTH;
     height_ = CP_DEF_HEIGHT;
     framerate_ = CP_DEF_FRAMERATE;
@@ -44,16 +42,17 @@ void CinePIController::sync(){
 void CinePIController::process(CompletedRequestPtr &completed_request){
     CinePIFrameInfo info(completed_request->metadata);
 
-    // TODO: Aggregate these stats into a JSON object or struct and emit via signal
-    // interface_->publishStats(...);
-    
-    /*
-    redis_->publish(CHANNEL_STATS, to_string(completed_request->framerate));
-    redis_->publish(CHANNEL_STATS, to_string(info.colorTemp));
-    redis_->publish(CHANNEL_STATS, to_string(info.focus));
-    redis_->publish(CHANNEL_STATS, to_string(app_->GetEncoder()->getFrameCount()));
-    redis_->publish(CHANNEL_STATS, to_string(app_->GetEncoder()->bufferSize()));
-    */
+    // Build JSON stats string
+    std::stringstream ss;
+    ss << "{";
+    ss << \"fps\":" << completed_request->framerate << ",";
+    ss << \"color_temp\":" << info.colorTemp << ",";
+    ss << \"focus\":" << info.focus << ",";
+    ss << \"frame_count\":" << app_->GetEncoder()->getFrameCount() << ",";
+    ss << \"buffer_size\":" << app_->GetEncoder()->bufferSize();
+    ss << "}";
+
+    interface_->publishStats(ss.str());
 }
 
 void CinePIController::mainThread(){
