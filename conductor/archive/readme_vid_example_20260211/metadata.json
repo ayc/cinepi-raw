@@ -1,0 +1,8 @@
+{
+  "track_id": "readme_vid_example_20260211",
+  "type": "documentation",
+  "status": "new",
+  "created_at": "2026-02-11T18:00:00Z",
+  "updated_at": "2026-02-11T18:00:00Z",
+  "description": "Add a specific command-line example for applying LUTs with rpicam-vid to the README.md."
+}
