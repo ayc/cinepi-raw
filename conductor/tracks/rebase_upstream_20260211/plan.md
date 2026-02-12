@@ -11,18 +11,18 @@
     - [x] Identify files with conflicts.
 
 ## Phase 2: Conflict Resolution
-- [ ] Task: Resolve Build Configuration Conflicts
-    - [ ] Inspect `CMakeLists.txt` conflicts.
-    - [ ] Re-integrate `cinepi` build instructions into the new upstream `CMakeLists.txt`.
-    - [ ] Verify `package.cmake` or other build helpers if affected.
-- [ ] Task: Resolve Core Application Conflicts
-    - [ ] Inspect `core/libcamera_app.cpp` and `core/libcamera_app.hpp`.
-    - [ ] Ensure `CinePIRecorder` inheritance and method overrides remain valid.
-    - [ ] Resolve any conflicts in `core/options.cpp` regarding command-line arguments.
-- [ ] Task: Resolve Remaining Conflicts
-    - [ ] Address conflicts in `encoder/` or `output/` directories if `cinepi` relies on modified base classes.
-    - [ ] Mark all conflicts as resolved (`git add`).
-    - [ ] Complete the rebase (`git rebase --continue`).
+- [x] Task: Resolve Build Configuration Conflicts 69be1bc
+    - [x] Inspect `CMakeLists.txt` conflicts.
+    - [x] Re-integrate `cinepi` build instructions into the new upstream `CMakeLists.txt`.
+    - [x] Verify `package.cmake` or other build helpers if affected.
+- [x] Task: Resolve Core Application Conflicts 7b01d91
+    - [x] Inspect `core/libcamera_app.cpp` and `core/libcamera_app.hpp`.
+    - [x] Ensure `CinePIRecorder` inheritance and method overrides remain valid.
+    - [x] Resolve any conflicts in `core/options.cpp` regarding command-line arguments.
+- [x] Task: Resolve Remaining Conflicts 7b01d91
+    - [x] Address conflicts in `encoder/` or `output/` directories if `cinepi` relies on modified base classes.
+    - [x] Mark all conflicts as resolved (`git add`).
+    - [x] Complete the rebase (`git rebase --continue`).
 
 ## Phase 3: Verification & Cleanup
 - [ ] Task: Build Verification
