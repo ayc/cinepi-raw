@@ -10,6 +10,7 @@
 #include "encoder/encoder.hpp"
 #include "raw_options.hpp"
 #include "cinepi_frameinfo.hpp"
+#include "dng_writer.hpp"
 
 class DngEncoder : public Encoder
 {
@@ -58,9 +59,7 @@ private:
 
     RawOptions const *options_;
 
-	void dng_save(uint8_t const *mem, StreamInfo const &info, uint8_t const *lomem, StreamInfo const &loinfo, size_t losize,
-			libcamera::ControlList const &metadata, std::string const &filename, std::string const &cam_name,
-			RawOptions const *options, uint64_t fn);
+    std::unique_ptr<DngWriter> dng_writer_;
 
 	struct EncodeItem
 	{
