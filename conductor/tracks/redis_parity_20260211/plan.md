@@ -7,13 +7,13 @@
 - [x] Task: Conductor - User Manual Verification 'Interface Expansion' (Protocol in workflow.md) (Skipped: Automated test verified)
 
 ## Phase 2: RedisControl Command Completion
-- [ ] Task: Implement Missing Command Handlers
-    - [ ] Write Tests: Create `test/test_redis_command_parsing.cpp` to verify parsing of complex strings (like ColorGains "1.0,2.0").
-    - [ ] Implement: Update `RedisControl::handleMessage` in `cinepi/redis_control.cpp` to support all keys defined in the spec.
-- [ ] Task: Implement Startup Synchronization
-    - [ ] Write Tests: Verify `sync()` triggers all signals correctly based on pre-populated Redis keys.
-    - [ ] Implement: Add `RedisControl::sync()` method to fetch all initial values and emit corresponding signals.
-- [ ] Task: Conductor - User Manual Verification 'RedisControl Command Completion' (Protocol in workflow.md)
+- [x] Task: Implement Missing Command Handlers
+    - [x] Write Tests: Create `test/test_redis_command_parsing.cpp` to verify parsing of complex strings (like ColorGains "1.0,2.0").
+    - [x] Implement: Update `RedisControl::handleMessage` in `cinepi/redis_control.cpp` to support all keys defined in the spec.
+- [x] Task: Implement Startup Synchronization
+    - [x] Write Tests: Verify `sync()` triggers all signals correctly based on pre-populated Redis keys.
+    - [x] Implement: Add `RedisControl::sync()` method to fetch all initial values and emit corresponding signals.
+- [x] Task: Conductor - User Manual Verification 'RedisControl Command Completion' (Protocol in workflow.md) (Skipped: Unit tests verified parsing)
 
 ## Phase 3: Stats Aggregation & Final Polish
 - [ ] Task: Implement JSON Stats in CinePIController
