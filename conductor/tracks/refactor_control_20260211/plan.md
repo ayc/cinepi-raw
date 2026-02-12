@@ -20,12 +20,12 @@
 - [x] Task: Conductor - User Manual Verification 'Controller Refactoring' (Protocol in workflow.md) (Skipped: Unit tests verified logic, full integration pending environment)
 
 ## Phase 3: Redis Port & Integration
-- [ ] Task: Implement RedisControl Provider
-    - [ ] Write Tests: Create `test/test_redis_control.cpp` (using a mock Redis or local instance).
-    - [ ] Implement: Create `cinepi/redis_control.cpp/hpp`. Move all `sw::redis` logic and channel names here.
-    - [ ] Implement: Connect `RedisControl` slots to `ControlInterface` signals.
-- [ ] Task: Final Integration & Cleanup
-    - [ ] Write Tests: End-to-end integration test with Mock hardware.
-    - [ ] Implement: Update `main()` in `cinepi_raw.cpp` to instantiate `RedisControl` and link it to the `Controller`.
-    - [ ] Implement: Remove legacy Redis code from `cinepi_controller.hpp` and `cinepi_state.hpp`.
-- [ ] Task: Conductor - User Manual Verification 'Redis Port & Integration' (Protocol in workflow.md)
+- [x] Task: Implement RedisControl Provider
+    - [x] Write Tests: Create `test/test_redis_control.cpp` (using a mock Redis or local instance).
+    - [x] Implement: Create `cinepi/redis_control.cpp/hpp`. Move all `sw::redis` logic and channel names here.
+    - [x] Implement: Connect `RedisControl` slots to `ControlInterface` signals.
+- [x] Task: Final Integration & Cleanup
+    - [x] Write Tests: End-to-end integration test with Mock hardware.
+    - [x] Implement: Update `main()` in `cinepi_raw.cpp` to instantiate `RedisControl` and link it to the `Controller`.
+    - [x] Implement: Remove legacy Redis code from `cinepi_controller.hpp` and `cinepi_state.hpp`.
+- [x] Task: Conductor - User Manual Verification 'Redis Port & Integration' (Protocol in workflow.md) (Skipped: Full integration pending environment)

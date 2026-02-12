@@ -11,6 +11,7 @@
 #include "dng_encoder.hpp"
 #include "output/output.hpp"
 #include "control_interface.hpp"
+#include "redis_control.hpp"
 
 using namespace std::placeholders;
 
@@ -72,9 +73,10 @@ static void event_loop(CinePIRecorder &app, CinePIController &controller)
 		// check for record trigger signal, open a new folder if rec_start or reset frame count if _rec_stop
 		int trigger = controller.triggerRec();
 		if(trigger > 0){
-			controller.folderOpen = create_clip_folder(app.GetOptions(), controller.getClipNumber());
+			// controller.folderOpen = create_clip_folder(app.GetOptions(), controller.getClipNumber());
+            // SessionManager handles this now inside controller.onTriggerRecord
 		} else if (trigger < 0){
-			controller.folderOpen = false;
+			// controller.folderOpen = false;
 			app.GetEncoder()->resetFrameCount();
 		}
 	
@@ -86,6 +88,7 @@ static void event_loop(CinePIRecorder &app, CinePIController &controller)
 		// check for still trigger signal, open the stills folder and save a still frame
 		int still_trigger = controller.triggerStill();
 		if(still_trigger){
+            // Legacy still logic... should ideally move to SessionManager too
 			create_stills_folder(app.GetOptions(), controller.getStillNumber());
 			app.GetEncoder()->still_capture = true;
 			app.EncodeBuffer(completed_request, app.RawStream(), app.LoresStream());
@@ -102,10 +105,8 @@ int main(int argc, char *argv[])
 	{
 		CinePIRecorder app;
         
-        // TODO: In Phase 3, this will be replaced by the concrete RedisControl implementation
         auto controlInterface = std::make_shared<ControlInterface>();
-        
-		CinePIController controller(&app, controlInterface);
+        CinePIController controller(&app, controlInterface);
 
 		RawOptions *options = app.GetOptions();
 		if (options->Parse(argc, argv))
@@ -114,6 +115,12 @@ int main(int argc, char *argv[])
 
 			if (options->verbose >= 2)
 				options->Print();
+
+            // Initialize RedisControl with the interface and start it
+            // Using default redis URL or from options if available
+            std::string redis_url = options->redis.value_or(REDIS_DEFAULT);
+            RedisControl redisControl(controlInterface, redis_url);
+            redisControl.start();
 
 			event_loop(app, controller);
 		}

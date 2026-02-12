@@ -18,24 +18,7 @@
 #include <queue>
 #include <thread>
 
-#define CONTROL_TRIGGER_RECORD "rec"
-#define CONTROL_TRIGGER_STILL "stll"
-#define CONTROL_TRIGGER_TIMELASPSE "tlps"
-
-#define CONTROL_KEY_RECORD "is_recording"
-#define CONTROL_KEY_ISO "iso"
-#define CONTROL_KEY_WB "awb"
-#define CONTROL_KEY_COLORGAINS "cg_rb"
-#define CONTROL_KEY_SHUTTER_ANGLE "shutter_a"
-#define CONTROL_KEY_SHUTTER_SPEED "shutter_s"
-
-#define CONTROL_KEY_FRAMERATE "fps"
-#define CONTROL_KEY_WIDTH "width"
-#define CONTROL_KEY_HEIGHT "height"
-#define CONTROL_KEY_MODE "mode"
-#define CONTROL_KEY_COMPRESSION "compress"
-
-#define CONTROL_KEY_CAMERAINIT "cam_init"
+// Control keys have been moved to redis_control.hpp / control_interface.hpp
 
 class CinePIState
 {
